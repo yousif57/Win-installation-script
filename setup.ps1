@@ -52,26 +52,27 @@ try {
 }
 
 # Install GPU driver app based on vendor
-$driversPath = ".\Drivers"
 if ($vendor) {
     Write-Log "Installing driver app for $vendor"
     try {
         if ($vendor -eq "NVIDIA") {
-            $installer = "$driversPath\NVIDIA_app_v11.0.4.526.exe"
-            Write-Log "Running NVIDIA App installer: $installer -s -n -noeula"
-            $process = Start-Process -FilePath $installer -ArgumentList "-s -n -noeula" -Wait -NoNewWindow -PassThru
+            Write-Log "Installing NVIDIA App via Chocolatey (nvidia-display-driver)"
+            $process = Start-Process -FilePath "choco" -ArgumentList "install nvidia-display-driver -y" -Wait -NoNewWindow -PassThru
             Write-Log "NVIDIA App installer exit code: $($process.ExitCode)"
 
-        } elseif ($vendor -eq "AMD") {
-            $installer = "$driversPath\amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
-            Write-Log "Running AMD Adrenalin installer: $installer /S"
-            $process = Start-Process -FilePath $installer -ArgumentList "/S" -Wait -NoNewWindow -PassThru
-            Write-Log "AMD Adrenalin installer exit code: $($process.ExitCode)"
+#        } elseif ($vendor -eq "AMD") {
+#           $installer = "$driversPath\amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
+#            Write-Log "Running AMD Adrenalin installer: $installer /S"
+#            $process = Start-Process -FilePath $installer -ArgumentList "/S" -Wait -NoNewWindow -PassThru
+#            Write-Log "AMD Adrenalin installer exit code: $($process.ExitCode)"
 
         } elseif ($vendor -eq "Intel") {
-            $installer = "$driversPath\Intel-Driver-and-Support-Assistant-Installer.exe"
-            Write-Log "Running Intel Graphics installer: $installer -s -noreboot"
-            $process = Start-Process -FilePath $installer -ArgumentList "-s -noreboot" -Wait -NoNewWindow -PassThru
+            $installerUrl = "https://dsadata.intel.com/installer"
+            $installerPath = "$env:TEMP\Intel-Graphics-Installer.exe"
+            Write-Log "Downloading Intel Graphics installer from $installerUrl"
+            (New-Object System.Net.WebClient).DownloadFile($installerUrl, $installerPath)
+            Write-Log "Running Intel Graphics installer: $installerPath -s -noreboot"
+            $process = Start-Process -FilePath $installerPath -ArgumentList "-s -noreboot" -Wait -NoNewWindow -PassThru
             Write-Log "Intel Graphics installer exit code: $($process.ExitCode)"
         }
     } catch {
