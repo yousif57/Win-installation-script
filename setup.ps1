@@ -100,7 +100,7 @@ if ($vendor) {
 # Run MAS for Windows and Office activation
 Write-Log "Running MAS for Windows and Office activation"
 try {
-    Write-Log "Executing MAS: & ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID /Ohook"
+    Write-Log "Executing MAS: & ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID /z-office"
     $process = Start-Process -FilePath "powershell.exe" -ArgumentList "-Command & ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID /Ohook" -Wait -NoNewWindow -PassThru
     Write-Log "MAS exit code: $($process.ExitCode)"
 } catch {
