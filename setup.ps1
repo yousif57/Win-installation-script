@@ -68,7 +68,7 @@ if ($vendor) {
                 Write-Log "Created temp directory: $tempPath"
             }
             $amdInstaller = "$tempPath\amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
-            $amdUrl = "https://drive.usercontent.google.com/download?id=16wb4R3Rjmma-yxa7ZmVIAtSyk01k4wh-&export=download&authuser=1"
+            $amdUrl = "https://raw.githubusercontent.com/yousif57/Win-installation-script/main/amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
             Write-Log "Downloading AMD driver from $amdUrl"
             try {
                 (New-Object System.Net.WebClient).DownloadFile($amdUrl, $amdInstaller)
