@@ -61,27 +61,55 @@ if ($vendor) {
             $process = Start-Process -FilePath "choco" -ArgumentList "install nvidia-display-driver -y" -Wait -NoNewWindow -PassThru
             Write-Log "NVIDIA App installer exit code: $($process.ExitCode)"
 
-       } elseif ($vendor -eq "AMD") {
-            # Create temp directory for AMD driver
-            $tempPath = "$env:TEMP\GPU_Driver"
-
-            if (-not (Test-Path $tempPath)) {
-                New-Item -ItemType Directory -Path $tempPath -Force | Out-Null
-                Write-Log "Created temp directory: $tempPath"
-            }
-            $amdInstaller = "$tempPath\amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
-            $amdUrl = "https://raw.githubusercontent.com/yousif57/Win-installation-script/main/amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
-            Write-Log "Downloading AMD driver from $amdUrl"
+        # AMD Driver Installation - Fixed Version
+        }elseif ($vendor -eq "AMD") {
+            Write-Log "Starting AMD driver installation"
+            
+            # Create temp directory for AMD driver with better error handling
+            $tempPath = Join-Path $env:TEMP "GPU_Driver"
+            Write-Log "Temp path will be: $tempPath"
+            
             try {
-                (New-Object System.Net.WebClient).DownloadFile($amdUrl, $amdInstaller)
-                Write-Log "AMD driver downloaded successfully to $amdInstaller"
+                if (-not (Test-Path -Path $tempPath)) {
+                    New-Item -ItemType Directory -Path $tempPath -Force | Out-Null
+                    Write-Log "Created temp directory: $tempPath"
+                } else {
+                    Write-Log "Temp directory already exists: $tempPath"
+                }
+                
+                # Verify temp directory exists
+                if (-not (Test-Path -Path $tempPath)) {
+                    throw "Failed to create or verify temp directory"
+                }
+                
+                $amdInstaller = Join-Path $tempPath "amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
+                Write-Log "AMD installer path will be: $amdInstaller"
+                
+                $amdUrl = "https://raw.githubusercontent.com/yousif57/Win-installation-script/main/amd-software-adrenalin-edition-25.8.1-minimalsetup-250801_web.exe"
+                Write-Log "Downloading AMD driver from $amdUrl"
+                
+                # Download with better error handling
+                $webClient = New-Object System.Net.WebClient
+                $webClient.DownloadFile($amdUrl, $amdInstaller)
+                $webClient.Dispose()
+                
+                # Verify download
+                if (-not (Test-Path -Path $amdInstaller)) {
+                    throw "AMD installer was not downloaded successfully"
+                }
+                
+                $fileSize = (Get-Item $amdInstaller).Length
+                Write-Log "AMD driver downloaded successfully to $amdInstaller (Size: $fileSize bytes)"
+                
+                # Run installer
+                Write-Log "Running AMD Adrenalin installer: $amdInstaller /S"
+                $process = Start-Process -FilePath $amdInstaller -ArgumentList "/S" -Wait -NoNewWindow -PassThru
+                Write-Log "AMD Adrenalin installer exit code: $($process.ExitCode)"
+                
             } catch {
-                Write-Log "Error downloading AMD driver: $_"
-                throw
+                Write-Log "Error in AMD driver installation: $($_.Exception.Message)"
+                Write-Log "Error details: $_"
             }
-            Write-Log "Running AMD Adrenalin installer: $amdInstaller /S"
-            $process = Start-Process -FilePath $amdInstaller -ArgumentList "/S" -Wait -NoNewWindow -PassThru
-            Write-Log "AMD Adrenalin installer exit code: $($process.ExitCode)"
 
         } elseif ($vendor -eq "Intel") {
             $installerUrl = "https://dsadata.intel.com/installer"
