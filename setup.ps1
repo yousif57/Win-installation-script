@@ -1,5 +1,5 @@
 # Initialize log file
-$logFile = "C:\SetupLog.txt"
+$logFile = "C:\SetupLogs.txt"
 function Write-Log {
     param($Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -63,6 +63,8 @@ if ($vendor) {
 
        } elseif ($vendor -eq "AMD") {
             # Create temp directory for AMD driver
+            $tempPath = "$env:TEMP\GPU_Driver"
+
             if (-not (Test-Path $tempPath)) {
                 New-Item -ItemType Directory -Path $tempPath -Force | Out-Null
                 Write-Log "Created temp directory: $tempPath"
