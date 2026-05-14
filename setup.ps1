@@ -24,6 +24,7 @@ Write-Log "Installing apps via Chocolatey (vlc discord k-litecodecpackfull filez
 try {
     choco install -y vlc discord k-litecodecpackfull filezilla googlechrome winrar
     choco install googlechrome -y --ignore-checksums
+    choco install obs-studio -y
     Write-Log "Chocolatey apps installed successfully"
 } catch {
     Write-Log "Error installing Chocolatey apps: $_"
